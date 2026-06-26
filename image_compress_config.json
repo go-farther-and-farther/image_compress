@@ -1,0 +1,8 @@
+{
+    "input_dir": "D:\\photo\\JPG",
+    "quality": 90,
+    "min_size_mb": 4,
+    "keep_original": true,
+    "convert_png": true,
+    "workers": 8
+}
