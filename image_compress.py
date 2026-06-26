@@ -17,12 +17,19 @@ SCRIPT_DIR = Path(sys.executable if getattr(sys, 'frozen', False) else __file__)
 CONFIG_PATH = SCRIPT_DIR / "image_compress_config.json"
 
 DEFAULT_CONFIG = {
+    "_说明": "修改下面的参数，保存后重新运行程序",
     "input_dir": "D:\\photo\\JPG",
+    "_input_dir": "↑ 输入目录路径",
     "quality": 90,
+    "_quality": "↑ 压缩质量 1-100，越小文件越小，推荐 85-95",
     "min_size_mb": 4,
+    "_min_size_mb": "↑ 只处理大于此大小的文件（MB）",
     "keep_original": True,
+    "_keep_original": "↑ true=保留原图，false=直接覆盖原图",
     "convert_png": True,
-    "workers": 8
+    "_convert_png": "↑ true=把PNG也转成JPG，false=只压缩JPG",
+    "workers": 8,
+    "_workers": "↑ 并行处理数量，一般填CPU核心数"
 }
 
 if not CONFIG_PATH.exists():
@@ -33,7 +40,7 @@ if not CONFIG_PATH.exists():
     sys.exit(0)
 
 with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-    config = json.load(f)
+    config = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
 
 INPUT_DIR = Path(config["input_dir"])
 QUALITY = config.get("quality", 90)
