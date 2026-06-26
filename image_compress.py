@@ -32,6 +32,38 @@ DEFAULT_CONFIG = {
 }
 
 
+def show_help():
+    """显示使用说明"""
+    print("""
+╔══════════════════════════════════════════════════════╗
+║            image_compress 使用说明                   ║
+╚══════════════════════════════════════════════════════╝
+
+  功能：批量压缩 JPG 图片，可选将 PNG 转为 JPG
+
+  配置文件：image_compress_config.json（同目录下）
+
+  参数说明：
+  ┌─────────────────┬────────────────────────────────┐
+  │ input_dir       │ 输入目录路径                    │
+  │ quality         │ 压缩质量 1-100，推荐 85-95      │
+  │ min_size_mb     │ 只处理大于此大小的文件（MB）     │
+  │ keep_original   │ true=保留原图  false=直接覆盖    │
+  │ convert_png     │ true=PNG转JPG  false=只压缩JPG  │
+  │ workers         │ 并行数量，一般填CPU核心数        │
+  └─────────────────┴────────────────────────────────┘
+
+  注意事项：
+  - Windows 路径用双反斜杠：D:\\photo\\JPG
+  - keep_original=false 时原图会被覆盖，无法恢复
+  - 已压缩的文件（文件名含 _compressed/_converted）会自动跳过
+
+  项目地址：https://github.com/go-farther-and-farther/image_compress
+
+══════════════════════════════════════════════════════
+""")
+
+
 def process_one(f: Path, quality: int, keep_original: bool, convert_png: bool):
     if not f.exists():
         return None
@@ -77,14 +109,15 @@ def process_one(f: Path, quality: int, keep_original: bool, convert_png: bool):
 
 if __name__ == "__main__":
     multiprocessing.freeze_support()
+    show_help()
 
     # 加载配置
     if not CONFIG_PATH.exists():
         with open(CONFIG_PATH, "w", encoding="utf-8") as f:
             json.dump(DEFAULT_CONFIG, f, indent=4, ensure_ascii=False)
-        print(f"已生成默认配置: {CONFIG_PATH}")
-        print("请修改配置后重新运行。")
-        sys.exit(0)
+        print(f"  已生成默认配置: {CONFIG_PATH}")
+        print("  请用记事本打开修改，完成后按回车继续...")
+        input()
 
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         config = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
@@ -107,7 +140,7 @@ if __name__ == "__main__":
              if f.stat().st_size > min_bytes
              and not any(k in f.stem for k in skip_keywords)]
 
-    print(f"配置文件: {CONFIG_PATH}")
+    print(f"\n配置文件: {CONFIG_PATH}")
     print(f"{'=' * 50}")
     print(f"  输入目录: {INPUT_DIR}")
     print(f"  压缩质量: {QUALITY}")
