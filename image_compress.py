@@ -6,9 +6,9 @@
 
 import json
 import sys
+import multiprocessing
 from pathlib import Path
 from PIL import Image
-from multiprocessing import Pool
 from functools import partial
 Image.MAX_IMAGE_PIXELS = None
 
@@ -76,6 +76,8 @@ def process_one(f: Path, quality: int, keep_original: bool, convert_png: bool):
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
+
     # 加载配置
     if not CONFIG_PATH.exists():
         with open(CONFIG_PATH, "w", encoding="utf-8") as f:
@@ -124,7 +126,7 @@ if __name__ == "__main__":
         total_saved = 0
         processed = 0
 
-        with Pool(WORKERS) as pool:
+        with multiprocessing.Pool(WORKERS) as pool:
             for result in pool.imap_unordered(fn, files):
                 if result is None:
                     continue

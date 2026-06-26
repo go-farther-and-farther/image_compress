@@ -1,6 +1,6 @@
 {
     "_说明": "修改下面的参数，保存后重新运行程序",
-    "input_dir": "D:\\photo\\JPG",
+    "input_dir": "D:\\photo\\JPG\\南昌",
     "_input_dir": "↑ 输入目录路径",
     "quality": 90,
     "_quality": "↑ 压缩质量 1-100，越小文件越小，推荐 85-95",
