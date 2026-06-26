@@ -107,12 +107,15 @@ if __name__ == "__main__":
              if f.stat().st_size > min_bytes
              and not any(k in f.stem for k in skip_keywords)]
 
-    print(f"配置: {CONFIG_PATH}")
-    print(f"  目录: {INPUT_DIR}")
-    print(f"  质量: {QUALITY}")
-    print(f"  最小: {MIN_SIZE_MB}MB")
-    print(f"  保留原图: {KEEP_ORIGINAL}")
-    print(f"  PNG转JPG: {CONVERT_PNG}")
+    print(f"配置文件: {CONFIG_PATH}")
+    print(f"{'=' * 50}")
+    print(f"  输入目录: {INPUT_DIR}")
+    print(f"  压缩质量: {QUALITY}")
+    print(f"  最小大小: {MIN_SIZE_MB}MB")
+    print(f"  保留原图: {'是' if KEEP_ORIGINAL else '否（直接覆盖）'}")
+    print(f"  PNG转JPG: {'是' if CONVERT_PNG else '否'}")
+    print(f"  并行数量: {WORKERS}")
+    print(f"{'=' * 50}")
     print()
     print(f"扫描完成: 共 {len(all_files)} 个文件, >{MIN_SIZE_MB}MB 的有 {len(files)} 个\n")
     for f in files:
@@ -122,6 +125,11 @@ if __name__ == "__main__":
     if not files:
         print("\n没有需要处理的文件。")
     else:
+        if not KEEP_ORIGINAL:
+            print("\n" + "=" * 50)
+            print("  警告：保留原图=False，原图将被直接覆盖！")
+            print("  无法恢复，请确认！")
+            print("=" * 50)
         print(f"\n按回车开始压缩, Ctrl+C 取消...")
         input()
 
