@@ -12,7 +12,6 @@ from multiprocessing import Pool
 from functools import partial
 Image.MAX_IMAGE_PIXELS = None
 
-# 读取配置
 SCRIPT_DIR = Path(sys.executable if getattr(sys, 'frozen', False) else __file__).parent
 CONFIG_PATH = SCRIPT_DIR / "image_compress_config.json"
 
@@ -32,23 +31,6 @@ DEFAULT_CONFIG = {
     "_workers": "↑ 并行处理数量，一般填CPU核心数"
 }
 
-if not CONFIG_PATH.exists():
-    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
-        json.dump(DEFAULT_CONFIG, f, indent=4, ensure_ascii=False)
-    print(f"已生成默认配置: {CONFIG_PATH}")
-    print("请修改配置后重新运行。")
-    sys.exit(0)
-
-with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-    config = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
-
-INPUT_DIR = Path(config["input_dir"])
-QUALITY = config.get("quality", 90)
-MIN_SIZE_MB = config.get("min_size_mb", 4)
-KEEP_ORIGINAL = config.get("keep_original", True)
-CONVERT_PNG = config.get("convert_png", True)
-WORKERS = config.get("workers", 8)
-
 
 def process_one(f: Path, quality: int, keep_original: bool, convert_png: bool):
     if not f.exists():
@@ -57,7 +39,6 @@ def process_one(f: Path, quality: int, keep_original: bool, convert_png: bool):
     size_kb = f.stat().st_size / 1024
     is_png = f.suffix.lower() == ".png"
 
-    # PNG 转 JPG
     if is_png and convert_png:
         if keep_original:
             out_path = f.with_name(f.stem + "_converted.jpg")
@@ -74,7 +55,6 @@ def process_one(f: Path, quality: int, keep_original: bool, convert_png: bool):
         saved_kb = size_kb - new_kb
         return f.name, size_kb, new_kb, saved_kb, None
 
-    # JPG 压缩
     if not is_png:
         if keep_original:
             out_path = f.with_name(f.stem + "_compressed" + f.suffix)
@@ -96,6 +76,25 @@ def process_one(f: Path, quality: int, keep_original: bool, convert_png: bool):
 
 
 if __name__ == "__main__":
+    # 加载配置
+    if not CONFIG_PATH.exists():
+        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+            json.dump(DEFAULT_CONFIG, f, indent=4, ensure_ascii=False)
+        print(f"已生成默认配置: {CONFIG_PATH}")
+        print("请修改配置后重新运行。")
+        sys.exit(0)
+
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        config = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
+
+    INPUT_DIR = Path(config["input_dir"])
+    QUALITY = config.get("quality", 90)
+    MIN_SIZE_MB = config.get("min_size_mb", 4)
+    KEEP_ORIGINAL = config.get("keep_original", True)
+    CONVERT_PNG = config.get("convert_png", True)
+    WORKERS = config.get("workers", 8)
+
+    # 扫描文件
     all_png = sorted(INPUT_DIR.rglob("*.png")) if CONVERT_PNG else []
     all_jpg = sorted(INPUT_DIR.rglob("*.jpg")) + sorted(INPUT_DIR.rglob("*.jpeg"))
     all_files = sorted(set(all_png + all_jpg))
