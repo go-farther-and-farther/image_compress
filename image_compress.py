@@ -102,7 +102,10 @@ if __name__ == "__main__":
     all_files = sorted(set(all_png + all_jpg))
 
     min_bytes = MIN_SIZE_MB * 1024 * 1024
-    files = [f for f in all_files if f.stat().st_size > min_bytes]
+    skip_keywords = {"_compressed", "_converted"}
+    files = [f for f in all_files
+             if f.stat().st_size > min_bytes
+             and not any(k in f.stem for k in skip_keywords)]
 
     print(f"配置: {CONFIG_PATH}")
     print(f"  目录: {INPUT_DIR}")
@@ -139,3 +142,6 @@ if __name__ == "__main__":
                 print(f"  {name}  {old_kb/1024:.1f}MB -> {new_kb/1024:.1f}MB  节省 {saved_kb/1024:.1f}MB")
 
         print(f"\n处理 {processed} 个, 共节省 {total_saved/1024:.1f} MB")
+
+    print()
+    input("按回车退出...")
